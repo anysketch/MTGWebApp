@@ -34,6 +34,10 @@ def extract_cards(deck_json):
 def home():
 		return send_from_directory(app.static_folder, "index.html")
 
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, "index.html")
+
 
 @app.route("/api/cards")
 def get_cards():
