@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { LoadingScreen } from "./components/LoadingScreen";
+import "./App.css";
 
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -135,7 +136,7 @@ function App() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>MTG Deck Cards</h1>
-			<label style={{ display: "block", marginBottom: "10px", width: "fit-content"}}>
+			<label style={{ display: "block", marginBottom: "10px", width: "fit-content", cursor: "pointer" }}>
 				<input
 					type="checkbox"
 					checked={showOnlyMismatches}
@@ -161,21 +162,16 @@ function App() {
 					</select>
 				</label>
 			</div>
-      <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%", textAlign: "center" }}>
+      <table>
         <thead>
-          <tr>
-            <th>Quantity</th>
-						<th>Name</th>
-            <th>Edition</th>
-            <th>Collector #</th>
-						<th>Color(s)</th>
-						<th>Rarity</th>
-            <th>Modifier</th>
-						<th>Current Category</th>
-						<th>Should Be In</th>
-            <th>Price (USD)</th>
-          </tr>
-        </thead>
+					<tr>
+						{["Quantity", "Name", "Edition", "Collector #", "Color(s)", "Rarity", "Modifier", "Current Category", "Should Be In", "Price (USD)"].map(header => (
+							<th	key={header} >
+								{header}
+							</th>
+						))}
+					</tr>
+				</thead>
         <tbody>
           {filteredCards.map((cardEntry) => {
 						const card = cardEntry.card || {};
@@ -184,7 +180,7 @@ function App() {
 						const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
 						const priceUSD = cardEntry.scryfallPrice;
 						const shouldBeCategory = getCategoryByPrice(priceUSD);
-					const isMismatch = currentCategory !== shouldBeCategory;
+						const isMismatch = currentCategory !== shouldBeCategory;
 					
             return (
               <tr
@@ -192,7 +188,20 @@ function App() {
 								style={{ backgroundColor: isMismatch ? "#ffe6e6" : "white", textAlign: "center" }}
 							>
                 <td>{cardEntry.quantity}</td>
-								<td>{oracleCard.name || "Unknown"}</td>
+								<td>
+									{oracleCard.name && card.uid ? (
+										<a
+											href={`https://archidekt.com/card?name=${encodeURIComponent(oracleCard.name)}&uid=${card.uid}`}
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{ color: "black", textDecoration: "underline", cursor: "pointer" }}
+										>
+											{oracleCard.name}
+										</a>
+									) : (
+										oracleCard.name || "Unknown"
+									)}
+								</td>
                 <td>{edition.editionname}</td>
                 <td>{cardEntry.card?.collectorNumber}</td>
 								<td>{normalizeColors(oracleCard.colors).join(", ")}</td>

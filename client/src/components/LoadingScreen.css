@@ -25,7 +25,7 @@
 .loading-bar-container {
   width: 200px;
   height: 2px;
-  background-color: #818181; /* Tailwind's gray-800 */
+  background-color: #cbcbcb; /* Tailwind's gray-800 */
   border-radius: 4px;
   overflow: hidden;
   position: relative;
