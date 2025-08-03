@@ -7,11 +7,6 @@ async function fetchScryfallPriceWithFallback(card, modifier) {
 	const archPrices = card.card?.prices || {};
   const mod = modifier.toLowerCase();
 
-	if (!scryfallId) {
-    console.log("Missing Scryfall UID for card:", card.card?.name);
-    return { price: null, source: "Missing Scryfall UID" };
-  }
-
   try {
     const response = await fetch(`https://api.scryfall.com/cards/${scryfallId}`);
     const data = await response.json();
@@ -60,7 +55,6 @@ function getCategoryByPrice(price) {
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
 
-
 function App() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,13 +65,13 @@ function App() {
 		fetch(`${API_BASE}/api/cards`)
 			.then((res) => res.json())
 			.then(async (data) => {
-				const cardsWithPrices = [];
-
-				for (const card of data) {
-					const modifier = card.modifier || "";
-					const { price, source } = await fetchScryfallPriceWithFallback(card, modifier);
-					cardsWithPrices.push({ ...card, scryfallPrice: price, priceSource: source });
-				}
+				const cardsWithPrices = await Promise.all(
+					data.map(async (card) => {
+						const modifier = card.modifier || "";
+						const { price, source } = await fetchScryfallPriceWithFallback(card, modifier);
+						return { ...card, scryfallPrice: price, priceSource: source };
+					})
+				);
 
 				setCards(cardsWithPrices);
 				setLoading(false);
