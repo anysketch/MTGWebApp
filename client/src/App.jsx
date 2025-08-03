@@ -3,6 +3,13 @@ import { LoadingScreen } from "./components/LoadingScreen";
 
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
+function normalizeColors(colors) {
+  if (!Array.isArray(colors) || colors.length === 0 || colors.includes("#N/A")) {
+    return ["Colorless"];
+  }
+  return colors;
+}
+
 async function fetchScryfallPriceWithFallback(card, modifier) {
   const scryfallId = card.card?.uid;
 	const archPrices = card.card?.prices || {};
@@ -63,9 +70,11 @@ function App() {
 
 
   useEffect(() => {
-		fetch(`${API_BASE}/api/cards`)
-			.then((res) => res.json())
-			.then(async (data) => {
+		async function loadCards() {
+			try {
+				const res = await fetch(`${API_BASE}/api/cards`);
+				const data = await res.json();
+
 				const cardsWithPrices = await Promise.all(
 					data.map(async (card) => {
 						const modifier = card.modifier || "";
@@ -75,16 +84,21 @@ function App() {
 				);
 
 				setCards(cardsWithPrices);
-			})
-			.catch((error) => {
+			} catch (error) {
 				console.error("Failed to fetch cards:", error);
-			});
+			} finally {
+				setLoading(false); // ✅ Only show data once all prices fetched
+			}
+		}
+
+		loadCards();
 	}, []);
+
 
 	// Define filteredCards here inside the component function, before return
 	const filteredCards = cards.filter((cardEntry) => {
 		const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
-		const colors = cardEntry.card?.oracleCard?.colors || ["N/A"];
+		const colors = normalizeColors(cardEntry.card?.oracleCard?.colors);
 		const priceUSD = cardEntry.scryfallPrice;
 		const expectedCategory = getCategoryByPrice(priceUSD);
 
@@ -101,7 +115,18 @@ function App() {
 	});
 
 	const allCategories = ["All", ...Array.from(new Set(cards.flatMap(c => c.categories || ["Uncategorized"]))).sort()];
-	const allColors = ["All", ...Array.from(new Set(cards.flatMap(c => c.card?.oracleCard?.colors || ["N/A"]))).sort()];
+	
+	function normalizeColors(colors) {
+		if (!Array.isArray(colors) || colors.length === 0 || colors.includes("#N/A")) {
+			return ["Colorless"];
+		}
+		return colors;
+	}
+
+	const allColors = ["All", ...Array.from(new Set(
+		cards.flatMap(c => normalizeColors(c.card?.oracleCard?.colors))
+	)).sort()];
+
 
   if (loading) {
   	return <LoadingScreen onComplete={() => setLoading(false)} />;
@@ -159,7 +184,6 @@ function App() {
 						const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
 						const priceUSD = cardEntry.scryfallPrice;
 						const shouldBeCategory = getCategoryByPrice(priceUSD);
-
 					const isMismatch = currentCategory !== shouldBeCategory;
 					
             return (
@@ -171,12 +195,12 @@ function App() {
 								<td>{oracleCard.name || "Unknown"}</td>
                 <td>{edition.editionname}</td>
                 <td>{cardEntry.card?.collectorNumber}</td>
-								<td>{oracleCard.colors?.join(", ") || "N/A"}</td>
-								<td>{capitalize(cardEntry.card?.rarity) || "N/A"}</td>
+								<td>{normalizeColors(oracleCard.colors).join(", ")}</td>
+								<td>{capitalize(cardEntry.card?.rarity) || "Unknown"}</td>
                 <td>{cardEntry.modifier}</td>
 								<td>{cardEntry.categories?.join(", ")}</td>
 								<td>{shouldBeCategory}</td>
-								<td style={{ color: cardEntry.priceSource.includes("Scryfall") ? "green" : "blue" }}>${priceUSD != null ? `${priceUSD.toFixed(2)}` : "N/A"}</td>
+								<td style={{ color: cardEntry.priceSource.includes("Scryfall") ? "green" : "blue" }}>${priceUSD != null ? `${priceUSD.toFixed(2)}` : "Unknown"}</td>
 							</tr>
             );
           })}
