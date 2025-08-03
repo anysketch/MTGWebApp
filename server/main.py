@@ -4,14 +4,14 @@ from flask_cors import CORS
 import requests
 import os
 
-# Get absolute path to this file's directory
-current_dir = os.path.dirname(os.path.abspath(__file__))
+# Get absolute path to the project root (MTGPriceTracker)
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Go up one level to MTGWebApp, then into client/dist
-static_folder_path = os.path.abspath(os.path.join(current_dir, '..', 'client', 'dist'))
+# Path to React build folder: MTGPriceTracker/client/dist
+static_folder_path = os.path.join(project_root, 'client', 'dist')
 
-app = Flask(__name__, static_folder=static_folder_path, static_url_path='/')
-
+# app = Flask(__name__)
+app = Flask(__name__, static_folder="../client/dist", static_url_path="/")
 CORS(app)
 
 test_deck_id = 14985045  # Example deck ID for testing
@@ -33,10 +33,6 @@ def extract_cards(deck_json):
 @app.route("/")
 def home():
 		return send_from_directory(app.static_folder, "index.html")
-
-@app.errorhandler(404)
-def not_found(e):
-    return send_from_directory(app.static_folder, "index.html")
 
 
 @app.route("/api/cards")
