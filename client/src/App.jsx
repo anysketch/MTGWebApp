@@ -60,8 +60,7 @@ function App() {
 
 
   useEffect(() => {
-		fetch("https://mtgpricetracker.onrender.com/api/cards")
-		// fetch("http://localhost:5000/api/cards")
+		fetch("/api/cards")
 			.then((res) => res.json())
 			.then(async (data) => {
 				const cardsWithPrices = await Promise.all(
