@@ -61,6 +61,7 @@ function App() {
 
   useEffect(() => {
 		fetch("https://mtgpricetracker.onrender.com/api/cards")
+		// fetch("http://127.0.0.1:5000/api/cards")
 			.then((res) => res.json())
 			.then(async (data) => {
 				const cardsWithPrices = await Promise.all(
