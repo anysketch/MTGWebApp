@@ -58,6 +58,9 @@ function getCategoryByPrice(price) {
   return "+$5";
 }
 
+const API_BASE = import.meta.env.VITE_API_BASE || "";
+
+
 function App() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,7 +68,7 @@ function App() {
 
 
   useEffect(() => {
-		fetch("/api/cards")
+		fetch(`${API_BASE}/api/cards`)
 			.then((res) => res.json())
 			.then(async (data) => {
 				const cardsWithPrices = [];
