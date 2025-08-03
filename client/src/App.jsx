@@ -40,9 +40,6 @@ async function fetchScryfallPriceWithFallback(card, modifier) {
   }
 }
 
-
-
-
 function getCategoryByPrice(price) {
   if (typeof price !== "number" || isNaN(price)) return "No price";
   if (price < 1.4) return "$1";
