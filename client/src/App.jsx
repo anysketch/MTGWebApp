@@ -77,9 +77,6 @@ function App() {
 					const modifier = card.modifier || "";
 					const { price, source } = await fetchScryfallPriceWithFallback(card, modifier);
 					cardsWithPrices.push({ ...card, scryfallPrice: price, priceSource: source });
-
-					// Optional: Small delay between requests to be nice to Scryfall
-					await new Promise((r) => setTimeout(r, 150));
 				}
 
 				setCards(cardsWithPrices);
