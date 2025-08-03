@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { LoadingScreen } from "./components/LoadingScreen";
 
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -56,6 +57,9 @@ function App() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
 	const [showOnlyMismatches, setShowOnlyMismatches] = useState(false);
+	const [selectedCategory, setSelectedCategory] = useState("All");
+	const [selectedColor, setSelectedColor] = useState("All");
+
 
 
   useEffect(() => {
@@ -71,29 +75,42 @@ function App() {
 				);
 
 				setCards(cardsWithPrices);
-				setLoading(false);
 			})
 			.catch((error) => {
 				console.error("Failed to fetch cards:", error);
-				setLoading(false);
 			});
 	}, []);
 
 	// Define filteredCards here inside the component function, before return
-  const filteredCards = cards.filter((cardEntry) => {
-    const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
-    const priceUSD = cardEntry.scryfallPrice;
-    const expectedCategory = getCategoryByPrice(priceUSD);
+	const filteredCards = cards.filter((cardEntry) => {
+		const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
+		const colors = cardEntry.card?.oracleCard?.colors || ["N/A"];
+		const priceUSD = cardEntry.scryfallPrice;
+		const expectedCategory = getCategoryByPrice(priceUSD);
 
-    return !showOnlyMismatches || currentCategory !== expectedCategory;
-  });
+		const matchesMismatch = !showOnlyMismatches || currentCategory !== expectedCategory;
+		const matchesCategory = selectedCategory === "All" || currentCategory === selectedCategory;
+		const matchesColor = selectedColor === "All" || colors.includes(selectedColor);
 
-  if (loading) return <div>Loading...</div>;
+		return matchesMismatch && matchesCategory && matchesColor;
+	})
+	.sort((a, b) => {
+		const nameA = a.card?.oracleCard?.name?.toLowerCase() || "";
+		const nameB = b.card?.oracleCard?.name?.toLowerCase() || "";
+		return nameA.localeCompare(nameB);
+	});
+
+	const allCategories = ["All", ...Array.from(new Set(cards.flatMap(c => c.categories || ["Uncategorized"]))).sort()];
+	const allColors = ["All", ...Array.from(new Set(cards.flatMap(c => c.card?.oracleCard?.colors || ["N/A"]))).sort()];
+
+  if (loading) {
+  	return <LoadingScreen onComplete={() => setLoading(false)} />;
+	}
 
   return (
     <div style={{ padding: "20px" }}>
       <h1>MTG Deck Cards</h1>
-			<label style={{ display: "block", marginBottom: "10px" }}>
+			<label style={{ display: "block", marginBottom: "10px", width: "fit-content"}}>
 				<input
 					type="checkbox"
 					checked={showOnlyMismatches}
@@ -101,6 +118,24 @@ function App() {
 				/>
 				{" "}Show Only Mismatched Cards
 			</label>
+			<div style={{ marginBottom: "10px", display: "flex", gap: "20px", flexWrap: "wrap" }}>
+				<label>
+					Filter by Category:
+					<select style={{ marginLeft: "5px" }} value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+						{allCategories.map((cat) => (
+							<option key={cat} value={cat}>{cat}</option>
+						))}
+					</select>
+				</label>
+				<label>
+					Filter by Color:
+					<select style={{ marginLeft: "5px" }} value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)}>
+						{allColors.map((color) => (
+							<option key={color} value={color}>{color}</option>
+						))}
+					</select>
+				</label>
+			</div>
       <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%", textAlign: "center" }}>
         <thead>
           <tr>
