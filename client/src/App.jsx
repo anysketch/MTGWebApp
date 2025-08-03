@@ -53,6 +53,8 @@ function getCategoryByPrice(price) {
   return "+$5";
 }
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+
 function App() {
   const [cards, setCards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ function App() {
 
 
   useEffect(() => {
-		fetch("http://localhost:5000/api/cards")
+		fetch(`${API_BASE_URL}/api/cards`)
 			.then((res) => res.json())
 			.then(async (data) => {
 				const cardsWithPrices = await Promise.all(
