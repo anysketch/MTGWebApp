@@ -1,17 +1,25 @@
-table {
-  border-spacing: 0;
-  border: 1px solid #000000;
+.table-container {
+  max-height: 75vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid black;
+  margin-top: 10px;
+}
+
+.table-container table {
   width: 100%;
+  table-layout: fixed;
+  border-spacing: 0;
 }
 
-td {
+td, th {
   padding: 0.5rem;
-  border-right: 1px solid #000;
   border-bottom: 1px solid #000;
+  border-right: 1px solid #000;
 }
 
-td:last-child {
-  border-right: none;
+tr:last-child td {
+  border-bottom: none; /* Optional: remove bottom border of last row */
 }
 
 th {
@@ -19,14 +27,7 @@ th {
   top: 0;
   z-index: 2;
   background-color: #90d3ff;
-  padding: 0.5rem;
-  border-right: 1px solid #000000;
-  border-bottom: 1px solid #000000;
   box-shadow: 0 2px 2px -1px rgba(0, 0, 10, 0.4);
-}
-
-th:last-child {
-  border-right: none;
 }
 
 .centered-table th,

@@ -162,59 +162,61 @@ function App() {
 					</select>
 				</label>
 			</div>
-      <table>
-        <thead>
-					<tr>
-						{["Quantity", "Name", "Edition", "Collector #", "Color(s)", "Rarity", "Modifier", "Current Category", "Should Be In", "Price (USD)"].map(header => (
-							<th	key={header} >
-								{header}
-							</th>
-						))}
-					</tr>
-				</thead>
-        <tbody>
-          {filteredCards.map((cardEntry) => {
-						const card = cardEntry.card || {};
-						const oracleCard = card.oracleCard || {};
-						const edition = card.edition || {};
-						const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
-						const priceUSD = cardEntry.scryfallPrice;
-						const shouldBeCategory = getCategoryByPrice(priceUSD);
-						const isMismatch = currentCategory !== shouldBeCategory;
-					
-            return (
-              <tr
-								key={cardEntry.id}
-								style={{ backgroundColor: isMismatch ? "#ffe6e6" : "white", textAlign: "center" }}
-							>
-                <td>{cardEntry.quantity}</td>
-								<td>
-									{oracleCard.name && card.uid ? (
-										<a
-											href={`https://archidekt.com/card?name=${encodeURIComponent(oracleCard.name)}&uid=${card.uid}`}
-											target="_blank"
-											rel="noopener noreferrer"
-											style={{ color: "black", textDecoration: "underline", cursor: "pointer" }}
-										>
-											{oracleCard.name}
-										</a>
-									) : (
-										oracleCard.name || "Unknown"
-									)}
-								</td>
-                <td>{edition.editionname}</td>
-                <td>{cardEntry.card?.collectorNumber}</td>
-								<td>{normalizeColors(oracleCard.colors).join(", ")}</td>
-								<td>{capitalize(cardEntry.card?.rarity) || "Unknown"}</td>
-                <td>{cardEntry.modifier}</td>
-								<td>{cardEntry.categories?.join(", ")}</td>
-								<td>{shouldBeCategory}</td>
-								<td style={{ color: cardEntry.priceSource.includes("Scryfall") ? "green" : "blue" }}>${priceUSD != null ? `${priceUSD.toFixed(2)}` : "Unknown"}</td>
-							</tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="table-container">
+				<table className="centered-table">
+					<thead>
+						<tr>
+							{["Quantity", "Name", "Edition", "Collector #", "Color(s)", "Rarity", "Modifier", "Current Category", "Should Be In", "Price (USD)"].map(header => (
+								<th key={header}>{header}</th>
+							))}
+						</tr>
+					</thead>
+					<tbody>
+						{filteredCards.map((cardEntry) => {
+							const card = cardEntry.card || {};
+							const oracleCard = card.oracleCard || {};
+							const edition = card.edition || {};
+							const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
+							const priceUSD = cardEntry.scryfallPrice;
+							const shouldBeCategory = getCategoryByPrice(priceUSD);
+							const isMismatch = currentCategory !== shouldBeCategory;
+
+							return (
+								<tr
+									key={cardEntry.id}
+									style={{ backgroundColor: isMismatch ? "#ffe6e6" : "white", textAlign: "center" }}
+								>
+									<td>{cardEntry.quantity}</td>
+									<td>
+										{oracleCard.name && card.uid ? (
+											<a
+												href={`https://archidekt.com/card?name=${encodeURIComponent(oracleCard.name)}&uid=${card.uid}`}
+												target="_blank"
+												rel="noopener noreferrer"
+												style={{ color: "black", textDecoration: "underline", cursor: "pointer" }}
+											>
+												{oracleCard.name}
+											</a>
+										) : (
+											oracleCard.name || "Unknown"
+										)}
+									</td>
+									<td>{edition.editionname}</td>
+									<td>{cardEntry.card?.collectorNumber}</td>
+									<td>{normalizeColors(oracleCard.colors).join(", ")}</td>
+									<td>{capitalize(cardEntry.card?.rarity) || "Unknown"}</td>
+									<td>{cardEntry.modifier}</td>
+									<td>{cardEntry.categories?.join(", ")}</td>
+									<td>{shouldBeCategory}</td>
+									<td style={{ color: cardEntry.priceSource.includes("Scryfall") ? "green" : "blue" }}>
+										${priceUSD != null ? `${priceUSD.toFixed(2)}` : "Unknown"}
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+			</div>
     </div>
   );
 }
