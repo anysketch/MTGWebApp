@@ -4,15 +4,14 @@ from flask_cors import CORS
 import requests
 import os
 
-# Get absolute path to the project root (MTGPriceTracker)
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Get the absolute path to the 'dist' folder inside 'client'
+static_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'client', 'dist'))
 
-# Path to React build folder: MTGPriceTracker/client/dist
-static_folder_path = os.path.join(project_root, 'client', 'dist')
-
-# app = Flask(__name__)
-app = Flask(__name__, static_folder="../client/dist", static_url_path="/")
+app = Flask(__name__, static_folder=static_folder_path, static_url_path='/')
 CORS(app)
+
+# Your existing routes and code here...
+
 
 test_deck_id = 14985045  # Example deck ID for testing
 mason_deck_id = 11731123  # Deck ID for Mason's deck
