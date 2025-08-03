@@ -7,6 +7,11 @@ async function fetchScryfallPriceWithFallback(card, modifier) {
 	const archPrices = card.card?.prices || {};
   const mod = modifier.toLowerCase();
 
+	if (!scryfallId) {
+    console.log("Missing Scryfall UID for card:", card.card?.name);
+    return { price: null, source: "Missing Scryfall UID" };
+  }
+
   try {
     const response = await fetch(`https://api.scryfall.com/cards/${scryfallId}`);
     const data = await response.json();
@@ -63,13 +68,16 @@ function App() {
 		fetch("/api/cards")
 			.then((res) => res.json())
 			.then(async (data) => {
-				const cardsWithPrices = await Promise.all(
-					data.map(async (card) => {
-						const modifier = card.modifier || "";
-						const { price, source } = await fetchScryfallPriceWithFallback(card, modifier);
-						return { ...card, scryfallPrice: price, priceSource: source };
-					})
-				);
+				const cardsWithPrices = [];
+
+				for (const card of data) {
+					const modifier = card.modifier || "";
+					const { price, source } = await fetchScryfallPriceWithFallback(card, modifier);
+					cardsWithPrices.push({ ...card, scryfallPrice: price, priceSource: source });
+
+					// Optional: Small delay between requests to be nice to Scryfall
+					await new Promise((r) => setTimeout(r, 150));
+				}
 
 				setCards(cardsWithPrices);
 				setLoading(false);
