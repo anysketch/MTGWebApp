@@ -10,14 +10,13 @@ static_folder_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..
 app = Flask(__name__, static_folder=static_folder_path, static_url_path='/')
 CORS(app)
 
-# Your existing routes and code here...
+import json
 
-
-test_deck_id = 14985045  # Example deck ID for testing
-mason_deck_id = 11731123  # Deck ID for Mason's deck
+CACHE_FILE = "cards_cache.json"
+DECK_ID = 11731123  # Or whatever deck ID you want
 
 # Dummy function to fetch deck JSON from Archidekt
-def fetch_deck(deck_id=mason_deck_id):
+def fetch_deck(deck_id=DECK_ID):
     url = f"https://archidekt.com/api/decks/{deck_id}/"
     response = requests.get(url)
     if response.status_code == 200:
