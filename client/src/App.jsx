@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { LoadingScreen } from "./components/LoadingScreen";
 import "./App.css";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "";
+
 const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
 function normalizeColors(colors) {
@@ -9,44 +11,6 @@ function normalizeColors(colors) {
     return ["Colorless"];
   }
   return colors;
-}
-
-async function fetchScryfallPriceWithFallback(card, modifier) {
-  const scryfallId = card.card?.uid;
-	const archPrices = card.card?.prices || {};
-  const mod = modifier.toLowerCase();
-
-  try {
-    const response = await fetch(`https://api.scryfall.com/cards/${scryfallId}`);
-    const data = await response.json();
-    const { usd, usd_foil, usd_etched } = data.prices;
-
-    // Handle etched
-    if (mod.includes("etched")) {
-      if (usd_etched) return { price: parseFloat(usd_etched), source: "Scryfall (etched)" };
-      if (archPrices.ckfoil) return { price: parseFloat(archPrices.ckfoil), source: "Card Kingdom (foil fallback)" };
-      return { price: null, source: "No Etched Price" };
-    }
-
-    // Handle foil
-    if (mod.includes("foil")) {
-      if (usd_foil) return { price: parseFloat(usd_foil), source: "Scryfall (foil)" };
-      if (archPrices.ckfoil) {
-				console.log("Using Card Kingdom foil price as fallback for:", card.card.name);
-				return { price: parseFloat(archPrices.ckfoil), source: "Card Kingdom (foil fallback)" };
-			}
-      return { price: null, source: "No Foil Price" };
-    }
-
-    // Handle normal
-    if (usd) return { price: parseFloat(usd), source: "Scryfall (normal)" };
-    if (archPrices.ck) return { price: parseFloat(archPrices.ck), source: "Card Kingdom (normal fallback)" };
-
-    return { price: null, source: "No price at all" };
-  } catch (err) {
-    console.error("Failed to fetch Scryfall price:", err);
-    return { price: null, source: "Error" };
-  }
 }
 
 function getCategoryByPrice(price) {
@@ -59,7 +23,31 @@ function getCategoryByPrice(price) {
   return "+$5";
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE || "";
+function fetchArchidektPrice(card, modifier) {
+  const prices = card.card?.prices || {};
+  const mod = modifier?.toLowerCase() || "";
+
+  const isFoil = mod.includes("foil") || mod.includes("etched");
+
+  if (isFoil) {
+    if (prices.tcgfoil != 0) {
+      return { price: parseFloat(prices.tcgfoil), source: "TCGPlayer (foil)" };
+    }
+    if (prices.ckfoil != 0) {
+      return { price: parseFloat(prices.ckfoil), source: "Card Kingdom (foil fallback)" };
+    }
+  } else {
+    if (prices.tcg != 0) {
+      return { price: parseFloat(prices.tcg), source: "TCGPlayer (normal)" };
+    }
+    if (prices.ck != 0) {
+      return { price: parseFloat(prices.ck), source: "Card Kingdom (normal fallback)" };
+    }
+  }
+
+  return { price: 0, source: "No price available" };
+}
+
 
 function App() {
   const [cards, setCards] = useState([]);
@@ -79,7 +67,7 @@ function App() {
 				const cardsWithPrices = await Promise.all(
 					data.map(async (card) => {
 						const modifier = card.modifier || "";
-						const { price, source } = await fetchScryfallPriceWithFallback(card, modifier);
+						const { price, source } = fetchArchidektPrice(card, modifier);
 						return { ...card, scryfallPrice: price, priceSource: source };
 					})
 				);
@@ -116,13 +104,6 @@ function App() {
 	});
 
 	const allCategories = ["All", ...Array.from(new Set(cards.flatMap(c => c.categories || ["Uncategorized"]))).sort()];
-	
-	function normalizeColors(colors) {
-		if (!Array.isArray(colors) || colors.length === 0 || colors.includes("#N/A")) {
-			return ["Colorless"];
-		}
-		return colors;
-	}
 
 	const allColors = ["All", ...Array.from(new Set(
 		cards.flatMap(c => normalizeColors(c.card?.oracleCard?.colors))
@@ -208,7 +189,7 @@ function App() {
 									<td>{cardEntry.modifier}</td>
 									<td>{cardEntry.categories?.join(", ")}</td>
 									<td>{shouldBeCategory}</td>
-									<td style={{ color: cardEntry.priceSource.includes("Scryfall") ? "green" : "blue" }}>
+									<td style={{ color: cardEntry.priceSource.includes("TCG") ? "green" : "blue" }}>
 										${priceUSD != null ? `${priceUSD.toFixed(2)}` : "Unknown"}
 									</td>
 								</tr>
