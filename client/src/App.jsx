@@ -117,6 +117,7 @@ function App() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>MTG Deck Cards</h1>
+			<button onClick="window.location.reload();">Refresh Page</button>
 			<label style={{ display: "block", marginBottom: "10px", width: "fit-content", cursor: "pointer" }}>
 				<input
 					type="checkbox"
