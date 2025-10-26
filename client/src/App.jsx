@@ -142,8 +142,8 @@ function App() {
 		const matchesColor =
 			selectedColor === "All"
 				? true
-				: selectedColor.includes("/")
-					? colorsToCombo(colors) === selectedColor
+				: selectedColor === "Multicolor"
+					? colors.length > 1           // any card with 2 or more colors
 					: colors.length === 1 && colors[0] === selectedColor;
 		const matchesShouldBe =
 			selectedShouldBe === "All" || shouldBeCategory === selectedShouldBe;
@@ -233,6 +233,7 @@ function App() {
 		"Red",
 		"Green",
 		"Colorless",
+		"Multicolor",
 		// // Two-color combos
 		// "White/Blue",
 		// "White/Black",
