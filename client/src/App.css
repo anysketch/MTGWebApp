@@ -1,7 +1,7 @@
 .table-container {
   max-height: 75vh;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   border: 1px solid black;
   margin-top: 10px;
 }
@@ -34,3 +34,8 @@ th {
 .centered-table td {
   text-align: center;
 }
+
+.centered-table a {
+  color: inherit;
+}
+
