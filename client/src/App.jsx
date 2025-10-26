@@ -114,9 +114,10 @@ function App() {
   	return <LoadingScreen onComplete={() => setLoading(false)} />;
 	}
 
+	// Main render
   return (
     <div style={{ padding: "20px" }}>
-      <h1>MTG Deck Cards</h1>          // Title of the page
+      <h1>MTG Deck Cards</h1>
 			<button onClick="location.reload();">Refresh Page</button>
 			<label style={{ display: "block", marginBottom: "10px", width: "fit-content", cursor: "pointer" }}>
 				<input
