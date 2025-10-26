@@ -317,6 +317,9 @@ function App() {
 							<th style={{ cursor: "pointer" }} onClick={() => handleSort("shouldBeCategory")}>
 								Should Be In {sortConfig.key === "shouldBeCategory" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
 							</th>
+							<th style={{ cursor: "pointer" }} onClick={() => handleSort("newPrice")}>
+								+$5 New Price {sortConfig.key === "newPrice" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
+							</th>
 							<th style={{ cursor: "pointer" }} onClick={() => handleSort("colors")}>
 								Color(s) {sortConfig.key === "colors" ? (sortConfig.direction === "asc" ? "▲" : "▼") : ""}
 							</th>
@@ -340,8 +343,9 @@ function App() {
 							const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
 							const shouldBeCategory = getCategoryByPrice(priceUSD);
 							const isMismatch = currentCategory !== shouldBeCategory;
+							const newPrice = priceUSD + 5;
 
-							// Underline price if should be in a lower category
+							// Determine if the card needs to move up
 						  const moveUp = categoryRank[shouldBeCategory] > categoryRank[currentCategory];
 
 							return (
@@ -377,6 +381,7 @@ function App() {
 									</td>
 									<td>{cardEntry.categories?.join(", ")}</td>
 									<td>{shouldBeCategory}</td>
+									<td>${newPrice.toFixed(2)}</td>
 									<td>{normalizeColors(oracleCard.colors).join(", ")}</td>
 									<td>{edition.editionname}</td>
 									<td>{capitalize(cardEntry.card?.rarity) || "Unknown"}</td>
