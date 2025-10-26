@@ -81,7 +81,22 @@ function App() {
 					data.map(async (card) => {
 						const modifier = card.modifier || "";
 						const { price, source } = fetchArchidektPrice(card, modifier);
-						return { ...card, scryfallPrice: price, priceSource: source };
+
+						// Ensure price is a valid number
+						const validPrice = typeof price === "number" && !isNaN(price) ? price : 0;
+
+						// Compute newPrice safely
+						let newPrice = 0;
+						if (validPrice > 5 && validPrice < 30) {
+							newPrice = Math.ceil(validPrice);
+							if (newPrice % 2 === 0) newPrice += 1;
+						} else if (validPrice >= 30) {
+							newPrice = Math.ceil(validPrice);
+							if (newPrice % 2 === 0) newPrice += 1;
+							newPrice += 2;
+						}
+
+						return { ...card, scryfallPrice: price, priceSource: source, newPrice };
 					})
 				);
 
@@ -155,6 +170,10 @@ function App() {
 				case "price":
 					aValue = a.scryfallPrice || 0;
 					bValue = b.scryfallPrice || 0;
+					break;
+				case "newPrice":
+					aValue = a.newPrice || 0;
+					bValue = b.newPrice || 0;
 					break;
 				case "currentCategory":
 					aValue = a.categories?.[0] || "";
@@ -343,7 +362,6 @@ function App() {
 							const currentCategory = cardEntry.categories?.[0] || "Uncategorized";
 							const shouldBeCategory = getCategoryByPrice(priceUSD);
 							const isMismatch = currentCategory !== shouldBeCategory;
-							const newPrice = priceUSD + 5;
 
 							// Determine if the card needs to move up
 						  const moveUp = categoryRank[shouldBeCategory] > categoryRank[currentCategory];
@@ -381,7 +399,7 @@ function App() {
 									</td>
 									<td>{cardEntry.categories?.join(", ")}</td>
 									<td>{shouldBeCategory}</td>
-									<td>${newPrice.toFixed(2)}</td>
+									<td>${cardEntry.newPrice.toFixed(2)}</td>
 									<td>{normalizeColors(oracleCard.colors).join(", ")}</td>
 									<td>{edition.editionname}</td>
 									<td>{capitalize(cardEntry.card?.rarity) || "Unknown"}</td>
